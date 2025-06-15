@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stats-service
+  namespace: todo-app
+  labels:
+    app: stats-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stats-service
+  template:
+    metadata:
+      labels:
+        app: stats-service
+    spec:
+      containers:
+        - name: stats
+          image: wojtek987/stats-service:latest
+          ports:
+            - containerPort: 4002
+          envFrom:
+            - secretRef:
+                name: auth-secret       # supplies JWT_SECRET
+            - configMapRef:
+                name: stats-config      # supplies TASK_API_URL
+          readinessProbe:
+            tcpSocket:
+              port: 4002
+            initialDelaySeconds: 5
+            periodSeconds: 10

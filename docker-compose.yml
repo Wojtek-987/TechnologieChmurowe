@@ -1,0 +1,78 @@
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb
+    ports:
+      - '27017:27017'
+    environment:
+      - MONGO_INITDB_DATABASE=todo_db
+    volumes:
+      - mongo-data:/data/db            # ← persist Mongo data here
+    networks:
+      - app-network
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - '4001:4001'
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/todo_db
+      - JWT_SECRET=supersecret_jwt_key
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+  task-service:
+    build:
+      context: ./task-service
+      dockerfile: Dockerfile
+    container_name: task-service
+    ports:
+      - '4000:4000'
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/todo_db
+      - JWT_SECRET=supersecret_jwt_key
+    depends_on:
+      - mongodb
+    networks:
+      - app-network
+
+  stats-service:
+    build:
+      context: ./stats-service
+      dockerfile: Dockerfile
+    container_name: stats-service
+    ports:
+      - '4002:4002'
+    environment:
+      - TASK_API_URL=http://task-service:4000/tasks
+      - JWT_SECRET=supersecret_jwt_key
+    depends_on:
+      - task-service
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./todo-microfrontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - '5173:5173'
+    depends_on:
+      - auth-service
+      - task-service
+      - stats-service
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
