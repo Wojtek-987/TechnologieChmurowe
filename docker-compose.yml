@@ -7,7 +7,7 @@ services:
     environment:
       - MONGO_INITDB_DATABASE=todo_db
     volumes:
-      - mongo-data:/data/db            # ← persist Mongo data here
+      - mongo-data:/data/db
     networks:
       - app-network
 
@@ -18,9 +18,10 @@ services:
     container_name: auth-service
     ports:
       - '4001:4001'
+    env_file:
+      - jwt.env
     environment:
       - MONGO_URI=mongodb://mongodb:27017/todo_db
-      - JWT_SECRET=supersecret_jwt_key
     depends_on:
       - mongodb
     networks:
@@ -33,9 +34,10 @@ services:
     container_name: task-service
     ports:
       - '4000:4000'
+    env_file:
+      - jwt.env
     environment:
       - MONGO_URI=mongodb://mongodb:27017/todo_db
-      - JWT_SECRET=supersecret_jwt_key
     depends_on:
       - mongodb
     networks:
@@ -48,9 +50,10 @@ services:
     container_name: stats-service
     ports:
       - '4002:4002'
+    env_file:
+      - jwt.env
     environment:
       - TASK_API_URL=http://task-service:4000/tasks
-      - JWT_SECRET=supersecret_jwt_key
     depends_on:
       - task-service
     networks:

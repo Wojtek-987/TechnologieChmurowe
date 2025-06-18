@@ -1,17 +1,16 @@
-# 15-metrics-server-patch.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: metrics-server
-  namespace: kube-system
+  namespace: todo-app
 spec:
   selector:
     matchLabels:
-      k8s-app: metrics-server      # ← exactly your existing selector
+      k8s-app: metrics-server
   template:
     metadata:
       labels:
-        k8s-app: metrics-server    # ← exactly your existing pod labels
+        k8s-app: metrics-server
     spec:
       hostNetwork: true
       containers:

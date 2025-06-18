@@ -53,7 +53,7 @@ app.get('/stats', async (req: AuthRequest, res: Response) => {
         const pending   = total - completed;
         const dueSoon   = tasks.filter(t => {
             const diff = new Date(t.dueDate).getTime() - Date.now();
-            return diff > 0 && diff <= 1000 * 60 * 60; // due within 1h
+            return diff > 0 && diff <= 1000 * 60 * 60;
         }).length;
 
         res.json({ total, completed, pending, dueSoon });

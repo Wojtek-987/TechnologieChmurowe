@@ -22,7 +22,7 @@ spec:
             - containerPort: 4000
           envFrom:
             - secretRef:
-                name: auth-secret       # supplies MONGO_URI and JWT_SECRET
+                name: auth-secret
           readinessProbe:
             tcpSocket:
               port: 4000

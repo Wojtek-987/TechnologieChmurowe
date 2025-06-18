@@ -22,9 +22,9 @@ spec:
             - containerPort: 4002
           envFrom:
             - secretRef:
-                name: auth-secret       # supplies JWT_SECRET
+                name: auth-secret
             - configMapRef:
-                name: stats-config      # supplies TASK_API_URL
+                name: stats-config
           readinessProbe:
             tcpSocket:
               port: 4002

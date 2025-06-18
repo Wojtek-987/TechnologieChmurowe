@@ -29,14 +29,6 @@ Prosty projekt mikroserwisowy składający się z następujących komponentów:
 
     └── 18-metrics-server-fix.yaml
 
-
----
-
-## Wymagania
-
-- Docker Desktop
-- (opcjonalnie) Kind lub inna instancja Kubernetes
-
 ---
 
 ## Jak uruchomić (Docker Compose)
@@ -54,13 +46,33 @@ Prosty projekt mikroserwisowy składający się z następujących komponentów:
 ```powershell
 docker-compose build
 docker-compose up -d
-cd .\k8s-manifests
-kind create cluster --name todo-cluster --config kind-config.yaml
-kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
-cd .\k8s-manifests
-kubectl apply -f .
 
-kubectl get all -n todo-app
+kind create cluster --name todo-cluster --config kind-config.yaml
+kubectl config use-context kind-todo-cluster
+
+docker tag technologiechmurowe-auth-service:latest   wojtek987/auth-service:latest
+docker tag technologiechmurowe-task-service:latest   wojtek987/task-service:latest
+docker tag technologiechmurowe-stats-service:latest  wojtek987/stats-service:latest
+docker tag technologiechmurowe-frontend:latest       wojtek987/frontend:latest
+
+kind load docker-image wojtek987/auth-service:latest   --name todo-cluster
+kind load docker-image wojtek987/task-service:latest   --name todo-cluster
+kind load docker-image wojtek987/stats-service:latest  --name todo-cluster
+kind load docker-image wojtek987/frontend:latest       --name todo-cluster
+
+kubectl apply -n kube-system `
+  -f 'https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml'
+
+kubectl apply -f .\k8s-manifests\00-namespace.yaml
+
+kubectl apply -n todo-app -f .\k8s-manifests\
+```
+
+### Inspekcja serwisów:
+```powershell
+kubectl get all        -n todo-app
+kubectl top nodes
+kubectl top pods       -n todo-app
 ```
 
 ### Uwaga
